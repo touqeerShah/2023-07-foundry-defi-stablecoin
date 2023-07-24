@@ -455,6 +455,20 @@ contract DSCEngineTest is StdCheats, Test {
         _;
     }
 
+    function testBalaceAfterLiquidation() public liquidated {
+        (uint256 totalDscMintedUser, uint256 collateralValueInUsdUser) = dsce.getAccountInformation(user);
+        console.log(user, "totalDscMintedUser", totalDscMintedUser);
+        (uint256 totalDscMintedliquidator, uint256 collateralValueInUsdliquidator) =
+            dsce.getAccountInformation(liquidator);
+        console.log(liquidator, "totalDscMintedliquidator", totalDscMintedliquidator);
+        uint256 userBalanceAfter = dsc.balanceOf(user);
+        console.log(user, "userBalanceAfter", userBalanceAfter);
+        uint256 liquidatorCoinBalance = dsc.balanceOf(liquidator);
+        console.log(liquidator, "liquidatorCoinBalance", liquidatorCoinBalance);
+        assertNotEq(userBalanceAfter, totalDscMintedUser);
+        assertNotEq(liquidatorCoinBalance, totalDscMintedliquidator);
+    }
+
     function testLiquidationPayoutIsCorrect() public liquidated {
         uint256 liquidatorWethBalance = ERC20Mock(weth).balanceOf(liquidator);
         uint256 expectedWeth = dsce.getTokenAmountFromUsd(weth, amountToMint)
